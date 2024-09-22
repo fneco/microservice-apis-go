@@ -20,3 +20,9 @@ gen-model-by-oapi-codegen:
 		oapi-codegen \
 			--config=./oapi-codegen/model.yaml \
 			./oas.yaml
+
+# https://github.com/ogen-go/ogen
+gen-by-ogen:
+	docker run --rm --volume ".:/workspace" \
+		ghcr.io/ogen-go/ogen:latest \
+			--target workspace/ogen/generated --clean workspace/oas.yaml
