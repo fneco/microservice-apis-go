@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"microservice-apis-go/oapi_codegen/generated/api"
-	"microservice-apis-go/oapi_codegen/server"
+	"microservice-apis-go/generated/api"
+	"microservice-apis-go/server"
 
 	middleware "github.com/oapi-codegen/gin-middleware"
 

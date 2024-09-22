@@ -4,4 +4,4 @@ generate:
   gin-server: true
   strict-server: true
   models: true
-output: ./oapi_codegen/generated/api/api.go
+output: ./generated/api/api.go

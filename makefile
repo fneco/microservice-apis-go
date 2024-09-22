@@ -2,5 +2,5 @@
 gen-by-oapi-codegen:
 	docker compose run oapi-codegen-service \
 		oapi-codegen \
-			--config=./oapi_codegen/config.yaml \
+			--config=./config/oapi-codegen.yaml \
 			./oas.yaml

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"microservice-apis-go/oapi_codegen/generated/api"
+	"microservice-apis-go/generated/api"
 	"net/http"
 	"time"
 
