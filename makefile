@@ -8,3 +8,15 @@ gen-by-openapi-generator:
 			-i ./oas.yaml \
 			-g go \
 			-o ./openapi-generator/generated
+
+# https://github.com/ogen-go/ogen
+gen-by-oapi-codegen:
+	docker compose run oapi-codegen-service \
+		oapi-codegen \
+			--config=./oapi-codegen/config.yaml \
+			./oas.yaml
+gen-model-by-oapi-codegen:
+	docker compose run oapi-codegen-service \
+		oapi-codegen \
+			--config=./oapi-codegen/model.yaml \
+			./oas.yaml

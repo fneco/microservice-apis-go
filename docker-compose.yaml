@@ -1,0 +1,9 @@
+services:
+  oapi-codegen-service:
+    container_name: oapi-codegen-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/local
+    working_dir: /local

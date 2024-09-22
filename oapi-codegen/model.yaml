@@ -1,0 +1,5 @@
+---
+package: onlymodels
+output: ./oapi-codegen/generated/only-models.gen.go
+generate:
+  models: true
