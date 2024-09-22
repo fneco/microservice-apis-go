@@ -4,6 +4,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/oapi-codegen/runtime"
+	strictgin "github.com/oapi-codegen/runtime/strictmiddleware/gin"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -421,4 +423,491 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.PUT(options.BaseURL+"/orders/:order_id", wrapper.UpdateOrder)
 	router.POST(options.BaseURL+"/orders/:order_id/cancel", wrapper.CancelOrder)
 	router.POST(options.BaseURL+"/orders/:order_id/pay", wrapper.PayOrder)
+}
+
+type NotFoundJSONResponse Error
+
+type UnprocessableEntityJSONResponse Error
+
+type GetOrdersRequestObject struct {
+	Params GetOrdersParams
+}
+
+type GetOrdersResponseObject interface {
+	VisitGetOrdersResponse(w http.ResponseWriter) error
+}
+
+type GetOrders200JSONResponse struct {
+	Orders *[]GetOrderSchema `json:"orders,omitempty"`
+}
+
+func (response GetOrders200JSONResponse) VisitGetOrdersResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetOrders422JSONResponse struct {
+	UnprocessableEntityJSONResponse
+}
+
+func (response GetOrders422JSONResponse) VisitGetOrdersResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateOrderRequestObject struct {
+	Body *CreateOrderJSONRequestBody
+}
+
+type CreateOrderResponseObject interface {
+	VisitCreateOrderResponse(w http.ResponseWriter) error
+}
+
+type CreateOrder201JSONResponse GetOrderSchema
+
+func (response CreateOrder201JSONResponse) VisitCreateOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateOrder422JSONResponse struct {
+	UnprocessableEntityJSONResponse
+}
+
+func (response CreateOrder422JSONResponse) VisitCreateOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteOrderRequestObject struct {
+	OrderId openapi_types.UUID `json:"order_id"`
+}
+
+type DeleteOrderResponseObject interface {
+	VisitDeleteOrderResponse(w http.ResponseWriter) error
+}
+
+type DeleteOrder204Response struct {
+}
+
+func (response DeleteOrder204Response) VisitDeleteOrderResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteOrder404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response DeleteOrder404JSONResponse) VisitDeleteOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteOrder422JSONResponse struct {
+	UnprocessableEntityJSONResponse
+}
+
+func (response DeleteOrder422JSONResponse) VisitDeleteOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetOrderRequestObject struct {
+	OrderId openapi_types.UUID `json:"order_id"`
+}
+
+type GetOrderResponseObject interface {
+	VisitGetOrderResponse(w http.ResponseWriter) error
+}
+
+type GetOrder200JSONResponse GetOrderSchema
+
+func (response GetOrder200JSONResponse) VisitGetOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetOrder404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response GetOrder404JSONResponse) VisitGetOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetOrder422JSONResponse struct {
+	UnprocessableEntityJSONResponse
+}
+
+func (response GetOrder422JSONResponse) VisitGetOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateOrderRequestObject struct {
+	OrderId openapi_types.UUID `json:"order_id"`
+	Body    *UpdateOrderJSONRequestBody
+}
+
+type UpdateOrderResponseObject interface {
+	VisitUpdateOrderResponse(w http.ResponseWriter) error
+}
+
+type UpdateOrder200JSONResponse GetOrderSchema
+
+func (response UpdateOrder200JSONResponse) VisitUpdateOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateOrder404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response UpdateOrder404JSONResponse) VisitUpdateOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateOrder422JSONResponse struct {
+	UnprocessableEntityJSONResponse
+}
+
+func (response UpdateOrder422JSONResponse) VisitUpdateOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CancelOrderRequestObject struct {
+	OrderId openapi_types.UUID `json:"order_id"`
+}
+
+type CancelOrderResponseObject interface {
+	VisitCancelOrderResponse(w http.ResponseWriter) error
+}
+
+type CancelOrder200JSONResponse GetOrderSchema
+
+func (response CancelOrder200JSONResponse) VisitCancelOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CancelOrder404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response CancelOrder404JSONResponse) VisitCancelOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CancelOrder422JSONResponse struct {
+	UnprocessableEntityJSONResponse
+}
+
+func (response CancelOrder422JSONResponse) VisitCancelOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PayOrderRequestObject struct {
+	OrderId openapi_types.UUID `json:"order_id"`
+}
+
+type PayOrderResponseObject interface {
+	VisitPayOrderResponse(w http.ResponseWriter) error
+}
+
+type PayOrder200JSONResponse GetOrderSchema
+
+func (response PayOrder200JSONResponse) VisitPayOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PayOrder404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response PayOrder404JSONResponse) VisitPayOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PayOrder422JSONResponse struct {
+	UnprocessableEntityJSONResponse
+}
+
+func (response PayOrder422JSONResponse) VisitPayOrderResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+// StrictServerInterface represents all server handlers.
+type StrictServerInterface interface {
+	// Returns a list of orders
+	// (GET /orders)
+	GetOrders(ctx context.Context, request GetOrdersRequestObject) (GetOrdersResponseObject, error)
+	// Creates an order
+	// (POST /orders)
+	CreateOrder(ctx context.Context, request CreateOrderRequestObject) (CreateOrderResponseObject, error)
+	// Deletes an existing order
+	// (DELETE /orders/{order_id})
+	DeleteOrder(ctx context.Context, request DeleteOrderRequestObject) (DeleteOrderResponseObject, error)
+	// Returns the details of a specific order
+	// (GET /orders/{order_id})
+	GetOrder(ctx context.Context, request GetOrderRequestObject) (GetOrderResponseObject, error)
+	// Replaces an existing order
+	// (PUT /orders/{order_id})
+	UpdateOrder(ctx context.Context, request UpdateOrderRequestObject) (UpdateOrderResponseObject, error)
+	// Cancels an order
+	// (POST /orders/{order_id}/cancel)
+	CancelOrder(ctx context.Context, request CancelOrderRequestObject) (CancelOrderResponseObject, error)
+	// Processes payment for an order
+	// (POST /orders/{order_id}/pay)
+	PayOrder(ctx context.Context, request PayOrderRequestObject) (PayOrderResponseObject, error)
+}
+
+type StrictHandlerFunc = strictgin.StrictGinHandlerFunc
+type StrictMiddlewareFunc = strictgin.StrictGinMiddlewareFunc
+
+func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
+	return &strictHandler{ssi: ssi, middlewares: middlewares}
+}
+
+type strictHandler struct {
+	ssi         StrictServerInterface
+	middlewares []StrictMiddlewareFunc
+}
+
+// GetOrders operation middleware
+func (sh *strictHandler) GetOrders(ctx *gin.Context, params GetOrdersParams) {
+	var request GetOrdersRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetOrders(ctx, request.(GetOrdersRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetOrders")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetOrdersResponseObject); ok {
+		if err := validResponse.VisitGetOrdersResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateOrder operation middleware
+func (sh *strictHandler) CreateOrder(ctx *gin.Context) {
+	var request CreateOrderRequestObject
+
+	var body CreateOrderJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateOrder(ctx, request.(CreateOrderRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateOrder")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(CreateOrderResponseObject); ok {
+		if err := validResponse.VisitCreateOrderResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteOrder operation middleware
+func (sh *strictHandler) DeleteOrder(ctx *gin.Context, orderId openapi_types.UUID) {
+	var request DeleteOrderRequestObject
+
+	request.OrderId = orderId
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteOrder(ctx, request.(DeleteOrderRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteOrder")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(DeleteOrderResponseObject); ok {
+		if err := validResponse.VisitDeleteOrderResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetOrder operation middleware
+func (sh *strictHandler) GetOrder(ctx *gin.Context, orderId openapi_types.UUID) {
+	var request GetOrderRequestObject
+
+	request.OrderId = orderId
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetOrder(ctx, request.(GetOrderRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetOrder")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetOrderResponseObject); ok {
+		if err := validResponse.VisitGetOrderResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UpdateOrder operation middleware
+func (sh *strictHandler) UpdateOrder(ctx *gin.Context, orderId openapi_types.UUID) {
+	var request UpdateOrderRequestObject
+
+	request.OrderId = orderId
+
+	var body UpdateOrderJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.UpdateOrder(ctx, request.(UpdateOrderRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UpdateOrder")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(UpdateOrderResponseObject); ok {
+		if err := validResponse.VisitUpdateOrderResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CancelOrder operation middleware
+func (sh *strictHandler) CancelOrder(ctx *gin.Context, orderId openapi_types.UUID) {
+	var request CancelOrderRequestObject
+
+	request.OrderId = orderId
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CancelOrder(ctx, request.(CancelOrderRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CancelOrder")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(CancelOrderResponseObject); ok {
+		if err := validResponse.VisitCancelOrderResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PayOrder operation middleware
+func (sh *strictHandler) PayOrder(ctx *gin.Context, orderId openapi_types.UUID) {
+	var request PayOrderRequestObject
+
+	request.OrderId = orderId
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.PayOrder(ctx, request.(PayOrderRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PayOrder")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(PayOrderResponseObject); ok {
+		if err := validResponse.VisitPayOrderResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
 }

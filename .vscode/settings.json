@@ -1,3 +1,11 @@
 {
-  "cSpell.words": ["codegen", "gonic", "oapi", "oapicodegen", "openapi"]
+  "cSpell.words": [
+    "codegen",
+    "gonic",
+    "oapi",
+    "oapicodegen",
+    "openapi",
+    "strictgin",
+    "strictmiddleware"
+  ]
 }
