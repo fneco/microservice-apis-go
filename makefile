@@ -13,12 +13,12 @@ gen-by-openapi-generator:
 gen-by-oapi-codegen:
 	docker compose run oapi-codegen-service \
 		oapi-codegen \
-			--config=./oapi-codegen/config.yaml \
+			--config=./oapi_codegen/config.yaml \
 			./oas.yaml
 gen-model-by-oapi-codegen:
 	docker compose run oapi-codegen-service \
 		oapi-codegen \
-			--config=./oapi-codegen/model.yaml \
+			--config=./oapi_codegen/model.yaml \
 			./oas.yaml
 
 # https://github.com/ogen-go/ogen
