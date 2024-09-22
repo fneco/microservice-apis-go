@@ -7,24 +7,28 @@ import (
 	"microservice-apis-go/oapi_codegen/generated/api"
 	"microservice-apis-go/oapi_codegen/server"
 
+	middleware "github.com/oapi-codegen/gin-middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// create a type that satisfies the `api.ServerInterface`, which contains an implementation of every operation from the generated code
 	server := server.NewServer()
 
+	validator, err := middleware.OapiValidatorFromYamlFile("./oas.yaml")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	r := gin.Default()
+	r.Use(validator)
 
 	api.RegisterHandlers(r, server)
-
-	// And we serve HTTP until the world ends.
 
 	s := &http.Server{
 		Handler: r,
 		Addr:    "0.0.0.0:80",
 	}
 
-	// And we serve HTTP until the world ends.
 	log.Fatal(s.ListenAndServe())
 }
