@@ -1,0 +1,403 @@
+openapi: 3.0.3
+info:
+  description: API that allows you to manage orders for CoffeeMesh
+  title: Orders API
+  version: 1.0.0
+servers:
+- description: local development server
+  url: http://localhost:8000
+- description: main production server
+  url: https://coffeemesh.com
+- description: staging server for testing purposes only
+  url: https://coffeemesh-staging.com
+security:
+- oauth2:
+  - getOrders
+  - createOrder
+  - getOrder
+  - updateOrder
+  - deleteOrder
+  - payOrder
+  - cancelOrder
+- bearerAuth:
+  - getOrders
+  - createOrder
+  - getOrder
+  - updateOrder
+  - deleteOrder
+  - payOrder
+  - cancelOrder
+paths:
+  /orders:
+    get:
+      description: |
+        A list of orders made by the customer sorted by date. Allows to filter orders by range of dates.
+      operationId: getOrders
+      parameters:
+      - explode: true
+        in: query
+        name: cancelled
+        required: false
+        schema:
+          type: boolean
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getOrders_200_response'
+          description: A JSON array of orders
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The payload contains invalid values.
+      summary: Returns a list of orders
+    post:
+      operationId: createOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderSchema'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderSchema'
+          description: A JSON representation of the created order
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The payload contains invalid values.
+      summary: Creates an order
+  /orders/{order_id}:
+    delete:
+      operationId: deleteOrder
+      parameters:
+      - explode: false
+        in: path
+        name: order_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: The resource was deleted successfully
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified resource was not found.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The payload contains invalid values.
+      summary: Deletes an existing order
+    get:
+      operationId: getOrder
+      parameters:
+      - explode: false
+        in: path
+        name: order_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderSchema'
+          description: OK
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified resource was not found.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The payload contains invalid values.
+      summary: Returns the details of a specific order
+    put:
+      operationId: updateOrder
+      parameters:
+      - explode: false
+        in: path
+        name: order_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderSchema'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderSchema'
+          description: OK
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified resource was not found.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The payload contains invalid values.
+      summary: Replaces an existing order
+  /orders/{order_id}/pay:
+    post:
+      operationId: payOrder
+      parameters:
+      - explode: false
+        in: path
+        name: order_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderSchema'
+          description: OK
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified resource was not found.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The payload contains invalid values.
+      summary: Processes payment for an order
+  /orders/{order_id}/cancel:
+    post:
+      operationId: cancelOrder
+      parameters:
+      - explode: false
+        in: path
+        name: order_id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderSchema'
+          description: OK
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified resource was not found.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The payload contains invalid values.
+      summary: Cancels an order
+components:
+  responses:
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: The specified resource was not found.
+    UnprocessableEntity:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: The payload contains invalid values.
+  schemas:
+    Error:
+      additionalProperties: false
+      properties:
+        detail:
+          $ref: '#/components/schemas/Error_detail'
+      required:
+      - detail
+      type: object
+    OrderItemSchema:
+      additionalProperties: false
+      example:
+        product: product
+        quantity: 80083
+        size: small
+      properties:
+        product:
+          type: string
+        size:
+          enum:
+          - small
+          - medium
+          - big
+          type: string
+        quantity:
+          default: 1
+          format: int64
+          maximum: 1000000
+          minimum: 1
+          type: integer
+      required:
+      - product
+      - size
+      type: object
+    CreateOrderSchema:
+      additionalProperties: false
+      example:
+        order:
+        - product: product
+          quantity: 80083
+          size: small
+        - product: product
+          quantity: 80083
+          size: small
+      properties:
+        order:
+          items:
+            $ref: '#/components/schemas/OrderItemSchema'
+          minItems: 1
+          type: array
+      required:
+      - order
+      type: object
+    GetOrderSchema:
+      additionalProperties: false
+      example:
+        created: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        status: created
+        order:
+        - product: product
+          quantity: 80083
+          size: small
+        - product: product
+          quantity: 80083
+          size: small
+      properties:
+        id:
+          format: uuid
+          type: string
+        created:
+          format: date-time
+          type: string
+        status:
+          enum:
+          - created
+          - paid
+          - progress
+          - cancelled
+          - dispatched
+          - delivered
+          type: string
+        order:
+          items:
+            $ref: '#/components/schemas/OrderItemSchema'
+          minItems: 1
+          type: array
+      required:
+      - created
+      - id
+      - order
+      - status
+      type: object
+    getOrders_200_response:
+      additionalProperties: false
+      example:
+        orders:
+        - created: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status: created
+          order:
+          - product: product
+            quantity: 80083
+            size: small
+          - product: product
+            quantity: 80083
+            size: small
+        - created: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status: created
+          order:
+          - product: product
+            quantity: 80083
+            size: small
+          - product: product
+            quantity: 80083
+            size: small
+      properties:
+        orders:
+          items:
+            $ref: '#/components/schemas/GetOrderSchema'
+          type: array
+      type: object
+    Error_detail:
+      oneOf:
+      - type: string
+      - items:
+          type: string
+        type: array
+  securitySchemes:
+    openId:
+      openIdConnectUrl: https://coffeemesh-dev.eu.auth0.com/.well-known/openid-configuration
+      type: openIdConnect
+    oauth2:
+      flows:
+        clientCredentials:
+          scopes: {}
+          tokenUrl: https://coffeemesh-dev.eu.auth0.com/oauth/token
+      type: oauth2
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
