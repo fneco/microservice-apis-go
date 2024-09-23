@@ -1,8 +1,8 @@
 services:
-  oapi-codegen-service:
-    container_name: oapi-codegen-container
+  develop-service:
+    container_name: develop-container
     build:
-      context: .
+      context: ./docker/develop
       dockerfile: Dockerfile
     volumes:
       - .:/local
