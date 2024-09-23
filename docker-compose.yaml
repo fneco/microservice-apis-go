@@ -2,8 +2,8 @@ services:
   develop-service:
     container_name: develop-container
     build:
-      context: ./docker/develop
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/develop/Dockerfile
     volumes:
-      - .:/local
-    working_dir: /local
+      - .:/app
+    working_dir: /app
